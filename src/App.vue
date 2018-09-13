@@ -211,10 +211,6 @@ export default {
                 xhttp.send();
                 xhttp.onreadystatechange = callback();
             },
-            updateFile: function() {
-                this.$vlf.setItem('file', JSON.stringify(this.fileData));
-            },
-
 
         //
         // TOP BAR
@@ -229,7 +225,12 @@ export default {
                 let self = this;
                 this.$vlf.getItem('homescreen')
                     .then(function(homescreen) {
-                        homescreen == 0 ? self.$vlf.setItem('homescreen', 1) : self.$vlf.setItem('homescreen', 0);
+                        if (homescreen == null) {
+                            homescreen = sessionStorage.getItem('homescreen');
+                            homescreen == 0 ? sessionStorage.setItem('homescreen', 1) : sessionStorage.setItem('homescreen', 0);
+                        } else {
+                            homescreen == 0 ? self.$vlf.setItem('homescreen', 1) : self.$vlf.setItem('homescreen', 0);
+                        }
                     });
             },
 
@@ -385,8 +386,14 @@ export default {
                     }
                     this.$vlf.getItem('file')
                         .then(function(file) {
-                            file.transactions = self.fileData.transactions;
-                            self.$vlf.setItem('file', file);
+                            if (file == null) {
+                                file = sessionStorage.getItem('file');
+                                file.transactions = self.fileData.transactions;
+                                sessionStorage.setItem('file', file);
+                            } else {
+                                file.transactions = self.fileData.transactions;
+                                self.$vlf.setItem('file', file);
+                            }
                         });
                     // this.addChange(updatedValues);
                     this.uploadFile();
@@ -403,9 +410,16 @@ export default {
                 // data.file = this.generalUserData.selectedFilePath;
                 this.$vlf.getItem('file')
                     .then(function(file) {
-                        file.lastId.transactions = self.fileData.lastId.transactions;
-                        file.transactions = self.fileData.transactions;
-                        self.$vlf.setItem('file', file);
+                        if (file == null) {
+                            file = sessionStorage.getItem('file');
+                            file.transactions = self.fileData.transactions;
+                            file.lastId.transactions = self.fileData.lastId.transactions;
+                            sessionStorage.setItem('file', file);
+                        } else {
+                            file.transactions = self.fileData.transactions;
+                            file.lastId.transactions = self.fileData.lastId.transactions;
+                            self.$vlf.setItem('file', file);
+                        }
                     });
                 // this.addChange(data);
                 this.updateTransactions();
@@ -427,8 +441,14 @@ export default {
                 }
                 this.$vlf.getItem('file')
                     .then(function(file) {
-                        file.transactions = self.fileData.transactions;
-                        self.$vlf.setItem('file', file);
+                        if (file == null) {
+                            file = sessionStorage.getItem('file');
+                            file.transactions = self.fileData.transactions;
+                            sessionStorage.setItem('file', file);
+                        } else {
+                            file.transactions = self.fileData.transactions;
+                            self.$vlf.setItem('file', file);
+                        }
                     });
                 this.contextTransaction = null;
                 this.updateTransactions();

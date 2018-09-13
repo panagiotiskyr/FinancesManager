@@ -84,11 +84,18 @@ export default {
                 }
                 self.$vlf.getItem('file')
                     .then(function(file) {
-                        file.accounts = self.data.accounts;                    
-                        self.$vlf.setItem('file', file)
-                            .then(function() {
-                                self.addLoading = false;
-                            });
+                        if (file == null) {
+                            file = sessionStorage.getItem('file');
+                            file.accounts = self.data.accounts;
+                            sessionStorage.setItem('file', file);
+                            self.addLoading = false;
+                        } else {
+                            file.accounts = self.data.accounts;
+                            self.$vlf.setItem('file', file)
+                                .then(function() {
+                                    self.addLoading = false;
+                                });
+                        }
                     });
             }, 1000);
         },
@@ -117,13 +124,22 @@ export default {
             }
             this.$vlf.getItem('file')
                 .then(function(file) {
-                    file.accounts = self.data.accounts;                    
-                    self.$vlf.setItem('file', file)
-                        .then(function() {
-                            self.addLoading = false;
-                            self.deleteAccountConfirmationIsVisible = false;
-                            self.deleteAccountSelected = null;
-                        });
+                    if (file == null) {
+                        file = sessionStorage.getItem('file');
+                        file.accounts = self.data.accounts;                    
+                        sessionStorage.setItem('file', file);
+                        self.addLoading = false;
+                        self.deleteAccountConfirmationIsVisible = false;
+                        self.deleteAccountSelected = null;
+                    } else {
+                        file.accounts = self.data.accounts;                    
+                        self.$vlf.setItem('file', file)
+                            .then(function() {
+                                self.addLoading = false;
+                                self.deleteAccountConfirmationIsVisible = false;
+                                self.deleteAccountSelected = null;
+                            });
+                    }
                 });
         },
         no: function() {
@@ -156,12 +172,20 @@ export default {
             });
             this.$vlf.getItem('file')
                 .then(function(file) {
-                    file.accounts = self.data.accounts;                    
-                    file.lastId.accounts += 1;                    
-                    self.$vlf.setItem('file', file)
-                        .then(function() {
-                            self.addLoading = false;
-                        });
+                    if (file == null) {
+                        file = sessionStorage.getItem('file');
+                        file.accounts = self.data.accounts;                    
+                        file.lastId.accounts += 1;                    
+                        sessionStorage.setItem('file', file);
+                        self.addLoading = false;
+                    } else {
+                        file.accounts = self.data.accounts;                    
+                        file.lastId.accounts += 1;                    
+                        self.$vlf.setItem('file', file)
+                            .then(function() {
+                                self.addLoading = false;
+                            });
+                    }
                 });
         },
         close: function() {
