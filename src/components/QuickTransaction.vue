@@ -94,39 +94,75 @@ export default {
                                 break;
                             }
                         }
-                        file.lastId.transactions += 1;
-                        file.transactions.push({
-                            amount: self.amount,
-                            account: selectedAccountIndex,
-                            day: d.getDate(),
-                            month: d.getMonth() + 1,
-                            year: d.getFullYear(),
-                            to: null,
-                            description: '',
-                            title: '-',
-                            id: file.lastId.transactions,
-                            type: self.type
-                        });
-                        self.$parent.fileData = file;
-                        self.$vlf.setItem('file', file)
-                            .then(function() {
-                                self.$parent.updateTransactions();
-                                self.$parent.uploadFile();
-                                self.amount = null;
-                                self.type = 1;
-                                self.selectedAccount = null;
-                                let buttons = document.querySelectorAll('#transaction-type > div');
-                                let amountInput = document.querySelector('#amount > input');
-                                let options = document.querySelectorAll('#account select > option');
-                                amountInput.focus();
-                                buttons[self.type].classList.add('selected');
-                                for (let i=0; i<self.fileData.accounts.length; i++) {
-                                    if (self.fileData.accounts[i].title == options[0].textContent) {
-                                        self.selectedAccount = self.fileData.accounts[i].title;
-                                        break;
-                                    }
-                                }
+                        if (file == null) {
+                            file = sessionStorage.getItem('file');
+                            file.lastId.transactions += 1;
+                            file.transactions.push({
+                                amount: self.amount,
+                                account: selectedAccountIndex,
+                                day: d.getDate(),
+                                month: d.getMonth() + 1,
+                                year: d.getFullYear(),
+                                to: null,
+                                description: '',
+                                title: '-',
+                                id: file.lastId.transactions,
+                                type: self.type
                             });
+                            self.$parent.fileData = file;
+                            sessionStorage.setItem('file', file);
+                            self.$parent.updateTransactions();
+                            self.$parent.uploadFile();
+                            self.amount = null;
+                            self.type = 1;
+                            self.selectedAccount = null;
+                            let buttons = document.querySelectorAll('#transaction-type > div');
+                            let amountInput = document.querySelector('#amount > input');
+                            let options = document.querySelectorAll('#account select > option');
+                            amountInput.focus();
+                            buttons[self.type].classList.add('selected');
+                            for (let i=0; i<self.fileData.accounts.length; i++) {
+                                if (self.fileData.accounts[i].title == options[0].textContent) {
+                                    self.selectedAccount = self.fileData.accounts[i].title;
+                                    break;
+                                }
+                            }
+                        } else {
+                            file = JSON.parse(file);
+                            file.lastId.transactions += 1;
+                            file.transactions.push({
+                                amount: self.amount,
+                                account: selectedAccountIndex,
+                                day: d.getDate(),
+                                month: d.getMonth() + 1,
+                                year: d.getFullYear(),
+                                to: null,
+                                description: '',
+                                title: '-',
+                                id: file.lastId.transactions,
+                                type: self.type
+                            });
+                            self.$parent.fileData = file;
+                            self.$vlf.setItem('file', file)
+                                .then(function() {
+                                    self.$parent.updateTransactions();
+                                    self.$parent.uploadFile();
+                                    self.amount = null;
+                                    self.type = 1;
+                                    self.selectedAccount = null;
+                                    let buttons = document.querySelectorAll('#transaction-type > div');
+                                    let amountInput = document.querySelector('#amount > input');
+                                    let options = document.querySelectorAll('#account select > option');
+                                    amountInput.focus();
+                                    buttons[self.type].classList.add('selected');
+                                    for (let i=0; i<self.fileData.accounts.length; i++) {
+                                        if (self.fileData.accounts[i].title == options[0].textContent) {
+                                            self.selectedAccount = self.fileData.accounts[i].title;
+                                            break;
+                                        }
+                                    }
+                                });
+                        }
                     });
             }
         },

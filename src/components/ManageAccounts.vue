@@ -90,6 +90,7 @@ export default {
                             sessionStorage.setItem('file', file);
                             self.addLoading = false;
                         } else {
+                            file = JSON.parse('file');
                             file.accounts = self.data.accounts;
                             self.$vlf.setItem('file', file)
                                 .then(function() {
@@ -132,6 +133,7 @@ export default {
                         self.deleteAccountConfirmationIsVisible = false;
                         self.deleteAccountSelected = null;
                     } else {
+                        file = JSON.parse('file');
                         file.accounts = self.data.accounts;                    
                         self.$vlf.setItem('file', file)
                             .then(function() {
@@ -179,6 +181,7 @@ export default {
                         sessionStorage.setItem('file', file);
                         self.addLoading = false;
                     } else {
+                        file = JSON.parse('file');
                         file.accounts = self.data.accounts;                    
                         file.lastId.accounts += 1;                    
                         self.$vlf.setItem('file', file)

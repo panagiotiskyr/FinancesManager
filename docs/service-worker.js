@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.4.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.c929411eb9207eb70d9f9a1404ca3068.js"
+  "precache-manifest.fd72eb59c8c30c26cad51b83bf84bfea.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "finances-manager"});
