@@ -7,6 +7,7 @@
             :checkOnline="checkOnline"
             :checkOnlineUrl="checkOnlineUrl"
             :historyReturn="historyReturn"
+            :redirectUri="redirectUri"
             :generalUserData="generalUserData" 
             :client_id="clientId">
         </user-action>
@@ -115,6 +116,7 @@ export default {
             // DEV
             //
                 historyReturn: 'https://panagiotiskyr.github.io/FinancesManager/',
+                redirectUri: 'https://panagiotiskyr.github.io/FinancesManager/',
                 checkOnline: true,
                 checkOnlineUrl: 'http://panagiotiskyr.github.io/',
 

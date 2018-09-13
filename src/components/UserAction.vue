@@ -101,6 +101,7 @@ export default {
     props: [
         'generalUserData',
         'historyReturn',
+        'redirectUri',
         'client_id',
         'checkOnline',
         'checkOnlineUrl'
@@ -371,7 +372,7 @@ export default {
         setUpLogin: function() {
             let Dropbox = require('dropbox').Dropbox;
             let dbx = new Dropbox({ clientId: this.client_id });
-            this.authUrl = dbx.getAuthenticationUrl('http://localhost:8080');
+            this.authUrl = dbx.getAuthenticationUrl(this.redirectUri);
             this.$parent.userMustTakeAction = true;
             this.userAction = 'login';
         },
@@ -430,7 +431,7 @@ export default {
                                     }
                                     if (self.checkOnline) {
                                         let xhttp = new window.XMLHttpRequest();
-                                        xhttp.open("HEAD", this.checkOnlineUrl, true);
+                                        xhttp.open("HEAD", self.checkOnlineUrl, true);
                                         xhttp.timeout = 5750;
                                         xhttp.addEventListener('load', function(event) {
                                             mainFunc(self, access_token);
