@@ -175,7 +175,6 @@ export default {
                 } else {
                     self.newFileNameSelectMessage = '';
                     self.filesLoadingMessage = 'Creating file';
-                    console.log(self.path + '/' + self.newFileNameSelectName + '.json')
                     let emptyFile = new Blob([JSON.stringify(self.emptyFile)], {type: 'JSON'});
                     let Dropbox = require('dropbox').Dropbox;
                     let dbx = new Dropbox({ accessToken: self.generalUserData.account.access_token });
@@ -223,7 +222,7 @@ export default {
         useFile: function(file, path) {
             this.$parent.userMustTakeAction = false;
             this.userAction = '';
-            this.$parent.fileData = file;
+            this.$parent.fileData = JSON.parse(file);
             this.generalUserData.selectedFilePath = path;
             this.$emit('allSetUp');
         },
@@ -255,34 +254,40 @@ export default {
         },
         checkFile: function(file) {
             function mainFunc(self) {
-                let Dropbox = require('dropbox').Dropbox;
-                let dbx = new Dropbox({ accessToken: self.generalUserData.account.access_token });
-                self.filesLoadingMessage = 'Checking file';
-                dbx.filesDownload({path: file.path_lower})
-                    .then(function(data) {
-                        var reader = new FileReader();
-                        reader.addEventListener("loadend", function() {
-                            if (self.fileIsValid(reader.result)) {
-                                self.$vlf.getItem('access_token')
-                                    .then(function(access_token) {
-                                        if (access_token != null) {
-                                            self.$vlf.setItem('file', JSON.parse(reader.result))
-                                                .then(function() {
-                                                    self.$vlf.setItem('file_path', file.path_lower);
+                self.$vlf.getItem('access_token')
+                    .then(function(access_token) {
+                        if (access_token != null || sessionStorage.getItem('access_token') != null) {
+                            access_token != null ? null : access_token = sessionStorage.getItem('access_token');
+                            let Dropbox = require('dropbox').Dropbox;
+                            let dbx = new Dropbox({ accessToken: access_token });
+                            self.filesLoadingMessage = 'Checking file';
+                            dbx.filesDownload({path: file.path_lower})
+                                .then(function(data) {
+                                    var reader = new FileReader();
+                                    reader.addEventListener("loadend", function() {
+                                        if (self.fileIsValid(reader.result)) {
+                                            self.$vlf.getItem('access_token')
+                                                .then(function(access_token) {
+                                                    if (access_token != null) {
+                                                        self.$vlf.setItem('file', JSON.parse(JSON.stringify(reader.result)))
+                                                            .then(function() {
+                                                                self.$vlf.setItem('file_path', file.path_lower);
+                                                            });
+                                                    } else {
+                                                        sessionStorage.setItem('file', JSON.parse(JSON.stringify(reader.result)));
+                                                        sessionStorage.setItem('file_path', file.path_lower);
+                                                    }
+                                                    self.useFile(reader.result, file.path_lower)
                                                 });
-                                        } else {
-                                            sessionStorage.setItem('file', JSON.parse(reader.result));
-                                            sessionStorage.setItem('file_path', file.path_lower);
                                         }
-                                        self.useFile(reader.result, file.path_lower)
+                                        self.filesLoadingMessage = '';
                                     });
-                            }
-                            self.filesLoadingMessage = '';
-                        });
-                        reader.readAsText(data.fileBlob);
-                    })
-                    .catch(function(error) {
-                        console.error(error);
+                                    reader.readAsText(data.fileBlob);
+                                })
+                                .catch(function(error) {
+                                    console.error(error);
+                                });
+                        }
                     });
             }
             let self = this;

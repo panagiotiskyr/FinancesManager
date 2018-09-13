@@ -116,8 +116,11 @@ export default {
             // DEV
             //
                 historyReturn: 'https://panagiotiskyr.github.io/FinancesManager/',
-                redirectUri: 'https://panagiotiskyr.github.io/FinancesManager/',
                 checkOnline: true,
+                redirectUri: 'https://panagiotiskyr.github.io/FinancesManager/',
+                // historyReturn: '/',
+                // checkOnline: false,
+                // redirectUri: 'http://localhost:8080/',
                 checkOnlineUrl: 'https://panagiotiskyr.github.io/',
 
             //
