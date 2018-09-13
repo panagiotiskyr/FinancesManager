@@ -86,6 +86,7 @@ export default {
                     .then(function(file) {
                         if (file == null) {
                             file = sessionStorage.getItem('file');
+                            file = JSON.parse('file');
                             file.accounts = self.data.accounts;
                             sessionStorage.setItem('file', file);
                             self.addLoading = false;
@@ -127,6 +128,7 @@ export default {
                 .then(function(file) {
                     if (file == null) {
                         file = sessionStorage.getItem('file');
+                        file = JSON.parse('file');
                         file.accounts = self.data.accounts;                    
                         sessionStorage.setItem('file', file);
                         self.addLoading = false;
@@ -176,6 +178,7 @@ export default {
                 .then(function(file) {
                     if (file == null) {
                         file = sessionStorage.getItem('file');
+                        file = JSON.parse('file');
                         file.accounts = self.data.accounts;                    
                         file.lastId.accounts += 1;                    
                         sessionStorage.setItem('file', file);

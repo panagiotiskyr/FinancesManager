@@ -96,6 +96,7 @@ export default {
                         }
                         if (file == null) {
                             file = sessionStorage.getItem('file');
+                            file = JSON.parse('file');
                             file.lastId.transactions += 1;
                             file.transactions.push({
                                 amount: self.amount,

@@ -388,9 +388,11 @@ export default {
                         .then(function(file) {
                             if (file == null) {
                                 file = sessionStorage.getItem('file');
+                                file = JSON.parse('file');
                                 file.transactions = self.fileData.transactions;
                                 sessionStorage.setItem('file', file);
                             } else {
+                                file = JSON.parse('file');
                                 file.transactions = self.fileData.transactions;
                                 self.$vlf.setItem('file', file);
                             }
@@ -412,10 +414,12 @@ export default {
                     .then(function(file) {
                         if (file == null) {
                             file = sessionStorage.getItem('file');
+                            file = JSON.parse('file');
                             file.transactions = self.fileData.transactions;
                             file.lastId.transactions = self.fileData.lastId.transactions;
                             sessionStorage.setItem('file', file);
                         } else {
+                            file = JSON.parse('file');
                             file.transactions = self.fileData.transactions;
                             file.lastId.transactions = self.fileData.lastId.transactions;
                             self.$vlf.setItem('file', file);
@@ -443,9 +447,11 @@ export default {
                     .then(function(file) {
                         if (file == null) {
                             file = sessionStorage.getItem('file');
+                            file = JSON.parse('file');
                             file.transactions = self.fileData.transactions;
                             sessionStorage.setItem('file', file);
                         } else {
+                            file = JSON.parse('file');
                             file.transactions = self.fileData.transactions;
                             self.$vlf.setItem('file', file);
                         }
