@@ -137,10 +137,7 @@ export default {
                     selectedFilePath: '',
                     account: {
                         name: '',
-                        access_token: '',
-                        token_type: '',
-                        uid: '',
-                        account_id: ''
+                        access_token: ''
                     }
                 },
 
@@ -317,47 +314,112 @@ export default {
                 this.contextTransaction = null;
                 this.newEditTransactionIsVisible = false;
             },
-            // addChange: function(data) {
-            //     let self = this;
-            //     this.$vlf.getItem('changes')
-            //         .then(function(changes) {
-            //             changes == null ? changes = [] : null;
-            //             if (data.action == 'add') {
-            //                 changes.push(data);
-            //                 self.$vlf.setItem('changes', changes);
-            //             } else {
-            //                 let changesForId = [data];
-            //                 for (let i = 0; i < changes.length; i++) {
-            //                     if (changes[i].file == data.file && changes[i].id == data.id) {
-            //                         changesForId.push(changes[i])
-            //                         changes.splice(i, 1);
-            //                         i -= 1;
-            //                     }
-            //                 }
-            //                 let groupedChanges = {};
-            //                 for (let change of changesForId) {
-            //                     if (change.action == 'delete') {
-            //                         groupedChanges = change;
-            //                         break;
-            //                     } else {
-            //                         for (let field in change) {
-            //                             if (field != 'file' && field != 'action' && field != 'id' && 
-            //                                 (groupedChanges[field] == undefined || change[field].time > groupedChanges[field].time)) {
-            //                                 groupedChanges[field] = change[field];
-            //                             }
-            //                         }
-            //                     }
-            //                 }
-            //                 if (groupedChanges.id == undefined) {
-            //                     groupedChanges.id = data.id;
-            //                     groupedChanges.file = data.file;
-            //                     groupedChanges.action = data.action;
-            //                 }
-            //                 changes.push(groupedChanges);
-            //                 self.$vlf.setItem('changes', changes);
-            //             }
-            //         });
-            // },
+            addChange: function(data, upload = true) {
+                let self = this;
+                this.$vlf.getItem('access_token')
+                    .then(function(access_token) {
+                        let changes;
+                        if (access_token == null) {
+                            changes = JSON.parse(sessionStorage.getItem('changes'));
+                            changes == null ? changes = [] : changes = changes;
+                            if (data.action == 'add' ) {
+                                changes.push(data);
+                                sessionStorage.setItem('changes', JSON.stringify(changes));
+                                upload ? self.uploadFile() : null;
+                            } else {
+                                let changesForId = [data];
+                                for (let i = 0; i < changes.length; i++) {
+                                    if (changes[i].what == data.what && changes[i].file == data.file && changes[i].id == data.id && changes[i].what == data.what) {
+                                        changesForId.push(changes[i])
+                                        changes.splice(i, 1);
+                                        i -= 1;
+                                    }
+                                }
+                                let groupedChanges = {};
+                                for (let change of changesForId) {
+                                    if (change.action == 'delete') {
+                                        groupedChanges = change;
+                                        break;
+                                    } else {
+                                        for (let field in change) {
+                                            if (field != 'file' && 
+                                                field != 'action' && 
+                                                field != 'id' && 
+                                                field != 'time' && 
+                                                field != 'what' && 
+                                                (groupedChanges[field] == undefined || change[field].time > groupedChanges[field].time)) {
+                                                    groupedChanges[field] = change[field];
+                                            }
+                                        }
+                                    }
+                                }
+                                if (groupedChanges.id == undefined) {
+                                    groupedChanges.id = data.id;
+                                    groupedChanges.file = data.file;
+                                    groupedChanges.action = data.action;
+                                    groupedChanges.what = data.what;
+                                }
+                                changes.push(groupedChanges);
+                                let file = sessionStorage.getItem('file');
+                                sessionStorage.setItem('changes', JSON.stringify(changes));
+                                upload ? self.uploadFile() : null;
+                            }
+                        } else {
+                            self.$vlf.getItem('changes')
+                                .then(function(changes) {
+                                    changes == null ? changes = [] : null;
+                                    if (data.action == 'add' ) {
+                                        changes.push(data);
+                                        self.$vlf.setItem('changes', changes)
+                                            .then(function() {
+                                                upload ? self.uploadFile() : null;
+                                            });
+                                    } else {
+                                        let changesForId = [data];
+                                        for (let i = 0; i < changes.length; i++) {
+                                            if (changes[i].what == data.what && changes[i].file == data.file && changes[i].id == data.id && changes[i].what == data.what) {
+                                                changesForId.push(changes[i])
+                                                changes.splice(i, 1);
+                                                i -= 1;
+                                            }
+                                        }
+                                        let groupedChanges = {};
+                                        for (let change of changesForId) {
+                                            if (change.action == 'delete') {
+                                                groupedChanges = change;
+                                                break;
+                                            } else {
+                                                for (let field in change) {
+                                                    if (field != 'file' && 
+                                                        field != 'action' && 
+                                                        field != 'id' && 
+                                                        field != 'time' && 
+                                                        field != 'what' && 
+                                                        (groupedChanges[field] == undefined || change[field].time > groupedChanges[field].time)) {
+                                                            groupedChanges[field] = change[field];
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (groupedChanges.id == undefined) {
+                                            groupedChanges.id = data.id;
+                                            groupedChanges.file = data.file;
+                                            groupedChanges.action = data.action;
+                                            groupedChanges.what = data.what;
+                                        }
+                                        changes.push(groupedChanges);
+                                        self.$vlf.getItem('file')
+                                            .then(function(file) {
+                                                self.$vlf.setItem('changes', changes)
+                                                    .then(function() {
+                                                        upload ? self.uploadFile() : null;
+                                                    });
+                                            });
+                                    }
+                                });
+                        }
+                    });
+            },
             updateTransaction: function(updatedTransaction) {
                 let self = this;
                 let updatedValues = {};
@@ -371,9 +433,10 @@ export default {
                     }
                 }
                 if (Object.keys(updatedValues).length > 0) {
-                    // updatedValues.id = updatedTransaction.id;
-                    // updatedValues.action = 'update';
-                    // updatedValues.file = this.generalUserData.selectedFilePath;
+                    updatedValues.id = updatedTransaction.id;
+                    updatedValues.action = 'update';
+                    updatedValues.file = this.generalUserData.selectedFilePath;
+                    updatedValues.what = 'transaction';
                     for (let i=0; i<this.fileData.transactions.length; i++) {
                         if (this.fileData.transactions[i].id == updatedTransaction.id) {
                             for (var j in this.fileData.transactions[i]) {
@@ -388,17 +451,15 @@ export default {
                         .then(function(file) {
                             if (file == null) {
                                 file = sessionStorage.getItem('file');
-                                file = JSON.parse('file');
+                                file = JSON.parse(file);
                                 file.transactions = self.fileData.transactions;
-                                sessionStorage.setItem('file', file);
+                                sessionStorage.setItem('file', JSON.stringify(file));
                             } else {
-                                file = JSON.parse('file');
                                 file.transactions = self.fileData.transactions;
-                                self.$vlf.setItem('file', file);
+                                self.$vlf.setItem('file', JSON.parse(JSON.stringify(file)));
                             }
                         });
-                    // this.addChange(updatedValues);
-                    this.uploadFile();
+                    this.addChange(updatedValues);
                     this.updateTransactions();
                 }
                 this.editTransactionData = null;
@@ -406,37 +467,45 @@ export default {
             addTransaction: function(data) {
                 let self = this;
                 this.fileData.lastId.transactions += 1;
-                this.fileData.transactions.push(data);
-                // data.id = this.fileData.lastId.transactions += 1;
-                // data.action = 'add';
-                // data.file = this.generalUserData.selectedFilePath;
+                data.id = this.fileData.lastId.transactions;
+                data.action = 'add';
+                data.file = this.generalUserData.selectedFilePath;
+                data.time = new Date().getTime();
+                data.what = 'transaction';
+                let transaction = {};
+                for (let field in data) {
+                    if (field != 'action' && field != 'file' && field != 'time' && field != 'what') {
+                        transaction[field] = data[field]
+                    }
+                }
+                this.fileData.transactions.push(transaction);
                 this.$vlf.getItem('file')
                     .then(function(file) {
                         if (file == null) {
                             file = sessionStorage.getItem('file');
-                            file = JSON.parse('file');
+                            file = JSON.parse(file);
                             file.transactions = self.fileData.transactions;
                             file.lastId.transactions = self.fileData.lastId.transactions;
-                            sessionStorage.setItem('file', file);
+                            sessionStorage.setItem('file', JSON.stringify(file));
                         } else {
-                            file = JSON.parse('file');
                             file.transactions = self.fileData.transactions;
                             file.lastId.transactions = self.fileData.lastId.transactions;
-                            self.$vlf.setItem('file', file);
+                            self.$vlf.setItem('file', JSON.parse(JSON.stringify(file)));
                         }
                     });
-                // this.addChange(data);
+                this.addChange(data);
                 this.updateTransactions();
-                this.uploadFile();
             },
-            deleteTransaction: function() {
+            deleteTransaction: function(upload = true) {
                 let self = this;
                 let transaction = this.contextTransaction;
                 let data = this.contextTransaction;
-                // data.id = this.contextTransaction.id;
-                // data.action = 'delete';
-                // data.file = this.generalUserData.selectedFilePath;
-                // this.addChange(data);
+                data.id = this.contextTransaction.id;
+                data.action = 'delete';
+                data.file = this.generalUserData.selectedFilePath;
+                data.time = new Date().getTime();
+                data.what = 'transaction';
+                this.addChange(data, upload);
                 for (let i=0; i<this.fileData.transactions.length; i++) {
                     if (this.fileData.transactions[i].id == this.contextTransaction.id) {
                         this.fileData.transactions.splice(i, 1);
@@ -447,18 +516,16 @@ export default {
                     .then(function(file) {
                         if (file == null) {
                             file = sessionStorage.getItem('file');
-                            file = JSON.parse('file');
+                            file = JSON.parse(file);
                             file.transactions = self.fileData.transactions;
-                            sessionStorage.setItem('file', file);
+                            sessionStorage.setItem('file', JSON.stringify(file));
                         } else {
-                            file = JSON.parse('file');
                             file.transactions = self.fileData.transactions;
-                            self.$vlf.setItem('file', file);
+                            self.$vlf.setItem('file', JSON.parse(JSON.stringify(file)));
                         }
                     });
                 this.contextTransaction = null;
                 this.updateTransactions();
-                this.uploadFile();
             },
 
         //
@@ -467,25 +534,337 @@ export default {
             uploadFile: function() {
                 let self = this;
                 let xhttp = new window.XMLHttpRequest();
+                this.showNotification('', 'disc', false)
                 xhttp.open("HEAD", self.checkOnlineUrl, true);
                 xhttp.timeout = 5750;
                 xhttp.addEventListener('load', function(event) {
-                    let Dropbox = require('dropbox').Dropbox;
-                    let dbx = new Dropbox({ accessToken: self.generalUserData.account.access_token });
-                    let file = new Blob([JSON.stringify(self.fileData)], {type: 'JSON'});
-                    // this.showNotification('Uploading', 'disc', false);
-                    dbx.filesUpload({
-                            path: self.generalUserData.selectedFilePath,
-                            contents: file,
-                            mode: 'overwrite',
-                            autorename: true,
-                            mute: true
-                        })
-                        .then(function(response) {
-                            // self.showNotification('Uploaded', 'check', true);
-                        })
-                        .catch(function(error) {
-                            console.error(error);
+                    self.$vlf.getItem('access_token')
+                        .then(function(access_token) {
+                            if (access_token == null) {
+                                access_token = sessionStorage.getItem('access_token');
+                                let file_path = sessionStorage.getItem('file_path');
+                                let file = new Blob([sessionStorage.getItem('file')], {type: 'JSON'});
+                                let Dropbox = require('dropbox').Dropbox;
+                                let dbx = new Dropbox({ accessToken: access_token });
+                                dbx.filesUpload({
+                                        path: file_path,
+                                        contents: file,
+                                        mode: 'overwrite',
+                                        autorename: true,
+                                        mute: true
+                                    })
+                                    .then(function(response) {
+                                        sessionStorage.removeItem('changes');
+                                        self.showNotification('', 'check', true);
+                                    })
+                                    .catch(function(error) {
+                                        console.error(error);
+                                    });
+                                // dbx.filesDownload({path: file_path})
+                                //     .then(function(data) {
+                                //         var reader = new FileReader();
+                                //         reader.addEventListener("loadend", function() {
+                                //             function uploadFile(oldFile, access_token) {
+                                //                 let Dropbox = require('dropbox').Dropbox;
+                                //                 let dbx = new Dropbox({ accessToken: access_token });
+                                //                 let file = new Blob([JSON.stringify(oldFile)], {type: 'JSON'});
+                                //                 dbx.filesUpload({
+                                //                         path: self.generalUserData.selectedFilePath,
+                                //                         contents: file,
+                                //                         mode: 'overwrite',
+                                //                         autorename: true,
+                                //                         mute: true
+                                //                     })
+                                //                     .then(function(response) {
+                                //                         // self.showNotification('Uploaded', 'check', true);
+                                //                     })
+                                //                     .catch(function(error) {
+                                //                         console.error(error);
+                                //                     });
+                                //             }
+                                //             let oldFile = JSON.parse(JSON.parse(JSON.stringify(reader.result)));
+                                //             let changes = JSON.parse(sessionStorage.getItem('changes'));
+                                //             changes == null ? changes = [] : null;
+                                //             for (let change of changes) {
+                                //                 if (change.what == 'account') {
+                                //                     if (change.action == 'add') {
+                                //                         let accountExists = false;
+                                //                         for (let account of oldFile.accounts) {
+                                //                             if (account.id == change.id) {
+                                //                                 accountExists = true;
+                                //                                 break;
+                                //                             }
+                                //                         }
+                                //                         if (!accountExists) {
+                                //                             oldFile.accounts.push({
+                                //                                 id: change.id,
+                                //                                 title: change.title,
+                                //                                 total: null
+                                //                             });
+                                //                         }
+                                //                     } else if (change.action == 'delete') {
+                                //                         for (let i=0; i<oldFile.accounts.length; i++) {
+                                //                             if (oldFile.accounts[i].id == change.id) {
+                                //                                 oldFile.accounts.splice(i, 1);
+                                //                                 break;
+                                //                             }
+                                //                         }
+                                //                     } else {
+                                //                         let accountExists = false;
+                                //                         for (let account of oldFile.accounts) {
+                                //                             if (account.id == change.id) {
+                                //                                 if (account.changes == null) {
+                                //                                     account.title = change.title.value;
+                                //                                     account.changes = {
+                                //                                         "title": change.title.time
+                                //                                     }
+                                //                                 } else {
+                                //                                     if (change.title.time > account.changes.title) {
+                                //                                         account.title = change.title.value;
+                                //                                         account.changes = {
+                                //                                             "title": change.title.time
+                                //                                         }
+                                //                                     }
+                                //                                 }
+                                //                                 accountExists = true;
+                                //                             }
+                                //                         }
+                                //                         if (!accountExists) {
+                                //                             oldFile.accounts.push({
+                                //                                 id: change.id,
+                                //                                 title: change.title,
+                                //                                 total: null
+                                //                             });
+                                //                         }
+                                //                     }
+                                //                 } else if (change.what == 'transaction') {
+                                //                     if (change.action == 'add') {
+                                //                         let transactionExists = false;
+                                //                         for (let transaction of oldFile.transactions) {
+                                //                             if (transaction.id == change.id) {
+                                //                                 transactionExists = true;
+                                //                                 break;
+                                //                             }
+                                //                         }
+                                //                         if (!transactionExists) {
+                                //                             let transaction = {};
+                                //                             for (let field in change) {
+                                //                                 if (field != 'action' && field != 'file' && field != 'time' && field != 'what') {
+                                //                                     transaction[field] = change[field];
+                                //                                 }
+                                //                             }
+                                //                             oldFile.transactions.push(transaction);
+                                //                         }
+                                //                     } else if (change.action == 'delete') {
+                                //                         for (let i=0; i<oldFile.transactions.length; i++) {
+                                //                             if (oldFile.transactions[i].id == change.id) {
+                                //                                 oldFile.transactions.splice(i, 1);
+                                //                                 break;
+                                //                             }
+                                //                         }
+                                //                     } else {
+                                //                         let transactionExists = false;
+                                //                         for (let transaction of oldFile.transactions) {
+                                //                             if (transaction.id == change.id) {
+                                //                                 transactionExists = true;
+                                //                                 if (transaction.changes == null) {
+                                //                                     transaction.changes = {};
+                                //                                     for (let field in change) {
+                                //                                         if (field != 'file' && 
+                                //                                             field != 'action' && 
+                                //                                             field != 'id' && 
+                                //                                             field != 'time' && 
+                                //                                             field != 'what') {
+                                //                                                 if (change[field] !== null && typeof change[field] === 'object') {
+                                //                                                     transaction[field] = change[field][Object.keys(change[field])[0]];
+                                //                                                     transaction.changes[field] = change[field][Object.keys(change[field])[0]];
+                                //                                                 } else {
+                                //                                                     transaction[field] = change[field];
+                                //                                                 }
+                                //                                         }
+                                //                                     }
+                                //                                 } else {
+                                //                                     let changeExists;
+                                //                                     for (let field in change) {
+                                //                                         if (field != 'file' && 
+                                //                                             field != 'action' && 
+                                //                                             field != 'id' && 
+                                //                                             field != 'time' && 
+                                //                                             field != 'what') {
+                                //                                             if (transaction.changes[field] !== null && typeof transaction.changes[field] === 'object') {
+                                //                                                 if (change[field] !== null && typeof change[field] === 'object' && 
+                                //                                                     change[field][Object.keys(change[field])[1]] > transaction.changes[field][Object.keys(transaction.changes[field])[1]]) {
+                                //                                                     transaction[field] = change[field];
+                                //                                                     transaction.changes[field] = change[field][Object.keys(change[field])[1]];
+                                //                                                 }
+                                //                                             } else {
+                                //                                                 if (change[field] !== null && typeof change[field] === 'object') {
+                                //                                                     transaction[field] = change[field];
+                                //                                                     transaction.changes[field] = change[field][Object.keys(change[field])[1]];
+                                //                                                 }
+                                //                                             }
+                                //                                     }
+
+
+
+
+
+
+
+                                            //                     }
+                                            //                 }
+                                            //             }
+                                            //             let transaction = {}
+                                            //             if (!transactionExists) {
+                                            //                 for (let field in change) {
+                                            //                     if (field != 'file' && 
+                                            //                         field != 'action' && 
+                                            //                         field != 'id' && 
+                                            //                         field != 'time' && 
+                                            //                         field != 'what') {
+                                            //                             if (change[field] !== null && typeof change[field] === 'object') {
+                                            //                                 transaction[field] = change[field][Object.keys(change[field])[0]];
+                                            //                             } else {
+                                            //                                 transaction[field] = change[field];
+                                            //                             }
+                                            //                     }
+                                            //                 }
+                                            //                 oldFile.transactions.push(transaction);
+                                            //             }
+                                            //         }
+                                            //     }
+                                            // }
+                                            // sessionStorage.removeItem('changes');
+                                            // if (oldFile.lastId.accounts < self.fileData.lastId.accounts) {
+                                            //     oldFile.lastId.accounts = self.fileData.lastId.accounts;
+                                            // }
+                                            // if (oldFile.lastId.transactions < self.fileData.lastId.transactions) {
+                                            //     oldFile.lastId.transactions = self.fileData.lastId.transactions;
+                                            // }
+                                            // uploadFile(oldFile, access_token);
+                                    //     });
+                                    //     reader.readAsText(data.fileBlob);
+                                    // })
+                                    // .catch(function(error) {
+                                    //     console.error(error);
+                                    // });
+                            } else {
+                                self.$vlf.getItem('file_path')
+                                    .then(function(file_path) {
+                                        self.$vlf.getItem('file')
+                                            .then(function(file) {
+                                                let fileToUpload = new Blob([JSON.stringify(file)], {type: 'JSON'});
+                                                let Dropbox = require('dropbox').Dropbox;
+                                                let dbx = new Dropbox({ accessToken: access_token });
+                                                dbx.filesUpload({
+                                                        path: file_path,
+                                                        contents: fileToUpload,
+                                                        mode: 'overwrite',
+                                                        autorename: true,
+                                                        mute: true
+                                                    })
+                                                    .then(function(response) {
+                                                        self.$vlf.removeItem('changes')
+                                                            .then(function() {
+                                                                self.showNotification('', 'check', true);
+                                                            });
+                                                    })
+                                                    .catch(function(error) {
+                                                        console.error(error);
+                                                    });
+                                            });
+                                    });
+                                // self.$vlf.getItem('file_path')
+                                //     .then(function(file_path) {
+                                //         let Dropbox = require('dropbox').Dropbox;
+                                //         let dbx = new Dropbox({ accessToken: access_token });
+                                //         dbx.filesDownload({path: file_path})
+                                //             .then(function(data) {
+                                //                 var reader = new FileReader();
+                                //                 reader.addEventListener("loadend", function() {
+                                //                     function uploadFile(oldFile, access_token) {
+                                //                         let Dropbox = require('dropbox').Dropbox;
+                                //                         let dbx = new Dropbox({ accessToken: access_token });
+                                //                         let file = new Blob([JSON.stringify(oldFile)], {type: 'JSON'});
+                                //                         dbx.filesUpload({
+                                //                                 path: self.generalUserData.selectedFilePath,
+                                //                                 contents: file,
+                                //                                 mode: 'overwrite',
+                                //                                 autorename: true,
+                                //                                 mute: true
+                                //                             })
+                                //                             .then(function(response) {
+                                //                                 // self.showNotification('Uploaded', 'check', true);
+                                //                             })
+                                //                             .catch(function(error) {
+                                //                                 console.error(error);
+                                //                             });
+                                //                     }
+                                //                     let oldFile = JSON.parse(JSON.parse(JSON.stringify(reader.result)));
+                                //                     self.$vlf.getItem('changes')
+                                //                         .then(function(changes) {
+                                //                             changes == null ? changes = [] : null;
+                                //                             for (let change of changes) {
+                                //                                 if (change.what == 'account') {
+                                //                                     if (change.action == 'add') {
+                                //                                         oldFile.accounts.push({
+                                //                                             id: change.id,
+                                //                                             title: change.title,
+                                //                                             total: null
+                                //                                         });
+                                //                                     } else if (change.action == 'delete') {
+                                //                                         for (let i=0; i<oldFile.accounts.length; i++) {
+                                //                                             if (oldFile.accounts[i].id == change.id) {
+                                //                                                 oldFile.accounts.splice(i, 1);
+                                //                                                 break;
+                                //                                             }
+                                //                                         }
+                                //                                     } else {
+                                //                                         let accountExists = false;
+                                //                                         for (let account of oldFile.accounts) {
+                                //                                             if (account.id == change.id) {
+                                //                                                 if (account.changes == null) {
+                                //                                                     account.title = change.title.value;
+                                //                                                     account.changes = {
+                                //                                                         "title": change.title.time
+                                //                                                     }
+                                //                                                 } else {
+                                //                                                     if (change.title.time > account.changes.title) {
+                                //                                                         account.title = change.title.value;
+                                //                                                         account.changes = {
+                                //                                                             "title": change.title.time
+                                //                                                         }
+                                //                                                     }
+                                //                                                 }
+                                //                                                 accountExists = true;
+                                //                                             }
+                                //                                         }
+                                //                                         if (!accountExists) {
+                                //                                             oldFile.accounts.push({
+                                //                                                 id: change.id,
+                                //                                                 title: change.title,
+                                //                                                 total: null
+                                //                                             });
+                                //                                         }
+                                //                                     }
+                                //                                 }
+                                //                             }
+                                //                             self.$vlf.removeItem('changes')
+                                //                                 .then(function() {
+                                //                                     if (oldFile.lastId.accounts < self.fileData.lastId.accounts) {
+                                //                                         oldFile.lastId.accounts = self.fileData.lastId.accounts;
+                                //                                     }
+                                //                                     uploadFile(oldFile, access_token);
+                                //                                 });
+                                //                         });
+                                //                 });
+                                //                 reader.readAsText(data.fileBlob);
+                                //             })
+                                //             .catch(function(error) {
+                                //                 console.error(error);
+                                //             });
+                                //     });
+                            }
                         });
                 });
                 xhttp.send(null);
@@ -517,9 +896,6 @@ export default {
                     }, 1000);
 
                 }
-            },
-            hideNotification: function() {
-                this.notificationIsVisible = false;
             },
 
             initApp: function() {

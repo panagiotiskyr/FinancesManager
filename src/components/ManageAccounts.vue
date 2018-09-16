@@ -82,16 +82,24 @@ export default {
                 for (let acc of self.data.accounts) {
                     if (acc.id == account.id) acc.title = account.title;
                 }
+                let updatedAccount = {};
+                updatedAccount.id = account.id;
+                updatedAccount.title = {
+                    value: account.title, 
+                    time: new Date().getTime()
+                };
+                updatedAccount.action = 'update';
+                updatedAccount.file = self.$parent.generalUserData.selectedFilePath;
+                updatedAccount.what = 'account';
+                self.$parent.addChange(updatedAccount);
                 self.$vlf.getItem('file')
                     .then(function(file) {
                         if (file == null) {
-                            file = sessionStorage.getItem('file');
-                            file = JSON.parse('file');
+                            file = JSON.parse(sessionStorage.getItem('file'));
                             file.accounts = self.data.accounts;
-                            sessionStorage.setItem('file', file);
+                            sessionStorage.setItem('file', JSON.stringify(file));
                             self.addLoading = false;
                         } else {
-                            file = JSON.parse('file');
                             file.accounts = self.data.accounts;
                             self.$vlf.setItem('file', file)
                                 .then(function() {
@@ -104,38 +112,48 @@ export default {
         yes: function() {
             let self = this;
             self.addLoading = true;
-            // for (let transaction of this.transactions) {
-            //     if (transaction.account == this.deleteAccountSelected.id && transaction.type == 2) {
-            //         this.$parent.addTransaction({
-            //             account: transaction.to,
-            //             amount: parseFloat(transaction.amount),
-            //             day: transaction.day,
-            //             description: 'Transfer from deleted account. ' + transaction.description,
-            //             month: transaction.month,
-            //             title: transaction.title,
-            //             to: null,
-            //             type: 0,
-            //             year: transaction.year
-            //         });
-            //     }
-            // }
+            for (let transaction of this.transactions) {
+                // if (transaction.account == this.deleteAccountSelected.id && transaction.type == 2) {
+                //     this.$parent.addTransaction({
+                //         account: transaction.to,
+                //         amount: parseFloat(transaction.amount),
+                //         day: transaction.day,
+                //         description: 'Transfer from deleted account. ' + transaction.description,
+                //         month: transaction.month,
+                //         title: transaction.title,
+                //         to: null,
+                //         type: 0,
+                //         year: transaction.year
+                //     });
+                // }
+                if (transaction.account == this.deleteAccountSelected.id || transaction.to == this.deleteAccountSelected.id) {
+                    this.$parent.contextTransaction = transaction;
+                    this.$parent.deleteTransaction(false);
+                }
+            }
             for (let i=0; i<this.data.accounts.length; i++) {
                 if (this.data.accounts[i].id == this.deleteAccountSelected.id) {
                     this.data.accounts.splice(i, 1);
                 }
             }
+            let deletedAccount = {
+                id: this.deleteAccountSelected.id,
+                title: this.deleteAccountSelected.title,
+            };
+            deletedAccount.action = 'delete';
+            deletedAccount.file = this.$parent.generalUserData.selectedFilePath;
+            deletedAccount.time = new Date().getTime();
+            deletedAccount.what = 'account';
             this.$vlf.getItem('file')
                 .then(function(file) {
                     if (file == null) {
-                        file = sessionStorage.getItem('file');
-                        file = JSON.parse('file');
+                        file = JSON.parse(sessionStorage.getItem('file'));
                         file.accounts = self.data.accounts;                    
-                        sessionStorage.setItem('file', file);
+                        sessionStorage.setItem('file', JSON.stringify(file));
                         self.addLoading = false;
                         self.deleteAccountConfirmationIsVisible = false;
                         self.deleteAccountSelected = null;
                     } else {
-                        file = JSON.parse('file');
                         file.accounts = self.data.accounts;                    
                         self.$vlf.setItem('file', file)
                             .then(function() {
@@ -144,6 +162,7 @@ export default {
                                 self.deleteAccountSelected = null;
                             });
                     }
+                    self.$parent.addChange(deletedAccount);
                 });
         },
         no: function() {
@@ -172,19 +191,26 @@ export default {
             this.data.accounts.push({
                 id: this.data.lastId.accounts,
                 title: 'New Account',
-                total: 0
+                total: null
             });
+            let newAccount = {
+                id: this.data.lastId.accounts,
+                title: 'New Account',
+            };
+            newAccount.action = 'add';
+            newAccount.file = this.$parent.generalUserData.selectedFilePath;
+            newAccount.time = new Date().getTime();
+            newAccount.what = 'account';
+            this.$parent.addChange(newAccount);
             this.$vlf.getItem('file')
                 .then(function(file) {
                     if (file == null) {
-                        file = sessionStorage.getItem('file');
-                        file = JSON.parse('file');
+                        file = JSON.parse(sessionStorage.getItem('file'));
                         file.accounts = self.data.accounts;                    
                         file.lastId.accounts += 1;                    
-                        sessionStorage.setItem('file', file);
+                        sessionStorage.setItem('file', JSON.stringify(file));
                         self.addLoading = false;
                     } else {
-                        file = JSON.parse('file');
                         file.accounts = self.data.accounts;                    
                         file.lastId.accounts += 1;                    
                         self.$vlf.setItem('file', file)

@@ -269,7 +269,7 @@ export default {
                                             self.$vlf.getItem('access_token')
                                                 .then(function(access_token) {
                                                     if (access_token != null) {
-                                                        self.$vlf.setItem('file', JSON.parse(JSON.stringify(reader.result)))
+                                                        self.$vlf.setItem('file', JSON.parse(JSON.parse(JSON.stringify(reader.result))))
                                                             .then(function() {
                                                                 self.$vlf.setItem('file_path', file.path_lower);
                                                             });
@@ -386,7 +386,7 @@ export default {
             this.$vlf.getItem('file')
                 .then(function(file) {
                     if (file != null || sessionStorage.getItem('file') != null) {
-                        file != null ? file = JSON.parse('file') : file = sessionStorage.getItem('file');
+                        file != null ? null : file = sessionStorage.getItem('file');
                         self.$vlf.getItem('file_path')
                             .then(function(file_path) {
                                 file_path != null ? null : file_path = sessionStorage.getItem('file_path');

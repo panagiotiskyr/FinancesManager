@@ -115,7 +115,8 @@ export default {
             for (let i=0; i<this.accounts.length; i++) {
                 if (this.accounts[i].title == this.windowTransactionData.account) {
                     this.windowTransactionData.account = this.accounts[i].id;
-                } else if (this.accounts[i].title == this.windowTransactionData.to) {
+                }
+                if (this.accounts[i].title == this.windowTransactionData.to) {
                     this.windowTransactionData.to = this.accounts[i].id;
                 }
             }
@@ -154,9 +155,11 @@ export default {
             switch (type) {
                 case 'Income':
                     this.windowTransactionData.type = 0;
+                    this.windowTransactionData.to = null;
                     break;
                 case 'Expense':
                     this.windowTransactionData.type = 1;
+                    this.windowTransactionData.to = null;
                     break;
                 case 'Transfer':
                     this.windowTransactionData.type = 2;
@@ -197,18 +200,19 @@ export default {
                 if (this.accounts[i].id == this.windowTransactionData.account) {
                     this.windowTransactionData.account = this.accounts[i].title;
                 }
+                if (this.accounts[i].id == this.windowTransactionData.to) {
+                    this.windowTransactionData.to = this.accounts[i].title;
+                }
             }
         }
     },
     mounted: function() {
         let amountInput = document.querySelector('#new-edit-transaction-amount-input');
         amountInput.focus();
-        if (this.windowTransactionData.to == null) {
-            let buttons = document.querySelectorAll('#new-edit-transaction-type > div');
-            buttons[this.windowTransactionData.type].classList.add('selected');
-            this.windowTransactionData.account = this.accounts[0].title;
-            this.windowTransactionData.to = this.accounts[0].title;
-        }
+        let buttons = document.querySelectorAll('#new-edit-transaction-type > div');
+        buttons[this.windowTransactionData.type].classList.add('selected');
+        this.windowTransactionData.account = this.accounts[0].title;
+        this.windowTransactionData.to = this.accounts[0].title;
     },
     updated: function() {
 

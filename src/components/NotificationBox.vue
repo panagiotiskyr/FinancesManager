@@ -37,14 +37,14 @@ export default {
 #notification-box {
     display: inline-block;
     position: fixed;
-    top: 1rem;
+    bottom: 1rem;
     right: -3rem;
     opacity: 0;
     visibility: hidden;
     box-shadow: 0 3px 0 0 #D2D2D2;
     background-color: #fff;
     color: #000;
-    padding: 0.8em 1.3em;
+    padding: 0.5rem 1rem;
     border-radius: 0.5rem 0 0 0.5rem;
     cursor: default;
     font-size: 1rem;

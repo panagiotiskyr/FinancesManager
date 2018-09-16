@@ -96,7 +96,7 @@ export default {
                         }
                         if (file == null) {
                             file = sessionStorage.getItem('file');
-                            file = JSON.parse('file');
+                            file = JSON.parse(file);
                             file.lastId.transactions += 1;
                             file.transactions.push({
                                 amount: self.amount,
@@ -111,7 +111,7 @@ export default {
                                 type: self.type
                             });
                             self.$parent.fileData = file;
-                            sessionStorage.setItem('file', file);
+                            sessionStorage.setItem('file', JSON.stringify(file));
                             self.$parent.updateTransactions();
                             self.$parent.uploadFile();
                             self.amount = null;
