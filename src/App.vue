@@ -534,10 +534,12 @@ export default {
             uploadFile: function() {
                 let self = this;
                 let xhttp = new window.XMLHttpRequest();
-                this.showNotification('', 'disc', false)
+                sessionStorage.removeItem('changes');
+                this.$vlf.removeItem('changes');
                 xhttp.open("HEAD", self.checkOnlineUrl, true);
                 xhttp.timeout = 5750;
                 xhttp.addEventListener('load', function(event) {
+                    self.showNotification('', 'disc', false)
                     self.$vlf.getItem('access_token')
                         .then(function(access_token) {
                             if (access_token == null) {
@@ -554,11 +556,11 @@ export default {
                                         mute: true
                                     })
                                     .then(function(response) {
-                                        sessionStorage.removeItem('changes');
                                         self.showNotification('', 'check', true);
                                     })
                                     .catch(function(error) {
                                         console.error(error);
+                                        self.showNotification('', 'alert', true);
                                     });
                                 // dbx.filesDownload({path: file_path})
                                 //     .then(function(data) {
@@ -764,13 +766,11 @@ export default {
                                                         mute: true
                                                     })
                                                     .then(function(response) {
-                                                        self.$vlf.removeItem('changes')
-                                                            .then(function() {
-                                                                self.showNotification('', 'check', true);
-                                                            });
+                                                        self.showNotification('', 'check', true);
                                                     })
                                                     .catch(function(error) {
                                                         console.error(error);
+                                                        self.showNotification('', 'alert', true);
                                                     });
                                             });
                                     });
