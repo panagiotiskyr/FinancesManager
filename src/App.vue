@@ -910,6 +910,7 @@ export default {
                             } else {
                                 self.pageShown = homescreen;
                             }
+                            self.getSelectedDateTransactions();
                         } else {
                             self.$vlf.getItem('homescreen')
                                 .then(function(homescreen) {
@@ -919,10 +920,10 @@ export default {
                                     } else {
                                         self.pageShown = homescreen;
                                     }
+                                    self.getSelectedDateTransactions();
                                 });
                         }
                     });
-                this.getSelectedDateTransactions();
             }
     },
     computed: {

@@ -219,12 +219,12 @@ export default {
                 mainFunc(self);
             }
         },
-        useFile: function(file, path) {
+        useFile: function(file, path, initial = true) {
             this.$parent.userMustTakeAction = false;
             this.userAction = '';
             this.$parent.fileData = JSON.parse(file);
             this.generalUserData.selectedFilePath = path;
-            this.$emit('allSetUp');
+            initial ? this.$emit('allSetUp') : this.$parent.updateTransactions();
         },
         fileIsValid: function(file) {
             let isValid = true;
@@ -252,7 +252,7 @@ export default {
                 return false;
             }
         },
-        checkFile: function(file) {
+        checkFile: function(file, initial = true) {
             function mainFunc(self) {
                 self.$vlf.getItem('access_token')
                     .then(function(access_token) {
@@ -277,7 +277,7 @@ export default {
                                                         sessionStorage.setItem('file', JSON.parse(JSON.stringify(reader.result)));
                                                         sessionStorage.setItem('file_path', file.path_lower);
                                                     }
-                                                    self.useFile(reader.result, file.path_lower)
+                                                    self.useFile(reader.result, file.path_lower, initial);
                                                 });
                                         }
                                         self.filesLoadingMessage = '';
@@ -390,19 +390,12 @@ export default {
                         self.$vlf.getItem('file_path')
                             .then(function(file_path) {
                                 file_path != null ? null : file_path = sessionStorage.getItem('file_path');
+                                self.useFile(file, file_path);
                                 let xhttp = new window.XMLHttpRequest();
                                 xhttp.open("HEAD", self.checkOnlineUrl, true);
                                 xhttp.timeout = 5750;
                                 xhttp.addEventListener('load', function(event) {
-                                    self.checkFile({path_lower: file_path});
-                                });
-                                xhttp.addEventListener('error', function() {
-                                    console.log('error');
-                                    self.useFile(file, file_path);
-                                });
-                                xhttp.addEventListener('timeout', function() {
-                                    console.log('timeout');
-                                    self.useFile(file, file_path);
+                                    self.checkFile({path_lower: file_path}, false);
                                 });
                                 xhttp.send(null);
                             });
