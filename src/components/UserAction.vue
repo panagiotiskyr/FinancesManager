@@ -390,7 +390,7 @@ export default {
                         self.$vlf.getItem('file_path')
                             .then(function(file_path) {
                                 file_path != null ? null : file_path = sessionStorage.getItem('file_path');
-                                self.useFile(file, file_path);
+                                self.useFile(JSON.stringify(file), file_path);
                                 let xhttp = new window.XMLHttpRequest();
                                 xhttp.open("HEAD", self.checkOnlineUrl, true);
                                 xhttp.timeout = 5750;
